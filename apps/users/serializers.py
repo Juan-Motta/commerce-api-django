@@ -1,54 +1,68 @@
-from django.db import transaction
-from django.contrib.auth import password_validation
-from django.core.validators import validate_email
-from rest_framework import serializers
-from .models import User
-
 import random
 import re
 
+from django.contrib.auth import password_validation
+from django.core.validators import validate_email
+from django.db import transaction
+from rest_framework import serializers
+
+from .models import User
 from .profiles import PROFILES
 
+
 class UserCreateSerializer(serializers.Serializer):
+    """
+    Serializador para la creacion de usuarios
+    Recibe en el request el email, nombres, apellidos, nid, telefono y contraseña. 
+    Valida que los datos ingresados son correctos mediante los metodos validate y crea el usuario en el metodo create
+    """
+    
     email = serializers.EmailField()
     first_name = serializers.CharField(min_length=1, max_length=30)
     last_name = serializers.CharField(min_length=1, max_length=30)
-    nid = serializers.IntegerField()
+    nid = serializers.CharField(max_length=15)
     phone = serializers.CharField(min_length=7, max_length=15)
     password = serializers.CharField(min_length=5 , max_length=30)
     
-    def validate(self, data):
-        error_messages = []
+    def validate_password(self, password):
         #Validaciones de la contraseña
         try:
-            password_validation.validate_password(data['password'], self.instance)
+            password_validation.validate_password(password, self.instance)
+            return password
         except Exception as e:
-            error_messages.append(list(e.messages))
+            raise serializers.ValidationError(e.messages)
+        
+    def validate_email(self,email):
         #Validaciones del correo
         try:
-            validate_email(data['email'])
+            validate_email(email)
+            email_validation = User.objects.filter(email=email)
+            if email_validation.__len__():
+                raise self.ValidationError("El email ya existe.")
+            return email
         except Exception as e:
-            error_messages.append(list(e.messages))
-        #Validaciones del nid    
-        nid_validation = User.objects.filter(nid=data['nid'])
+            raise serializers.ValidationError(e.messages)
+        
+    def validate_nid(self, nid):
+        #Validaciones de nid
+        nid_validation = User.objects.filter(nid=nid)
         if nid_validation.__len__():
-            error_messages.append({"nid": "Document number already exists"})
-        #validaciones del email
-        email_validation = User.objects.filter(email=data['email'])
-        if email_validation.__len__():
-            error_messages.append({"email": "Email already exists"})
-        #validaciones de telefono
-        phone_validation = self.clean_phone_number(data['phone'])
+            raise serializers.ValidationError("El documento ya existe.")
+        return nid
+        
+    def validate_phone(self, phone):
+        #Validaciones de telefono
+        phone_validation = User.objects.filter(phone=phone)
+        if phone_validation.__len__():
+            raise serializers.ValidationError("El numero de telefono ya existe.")
+        phone_validation = self.clean_phone_number(phone)
         if re.match('^[0-9]*$',phone_validation) is None:
-            error_messages.append({"phone": "Phone number must have only numbers"})
-            
-        if error_messages:
-            raise ValueError(error_messages)
+            raise serializers.ValidationError("El numero de telefono solo debe contener numeros.")
+        return phone
     
     #Transaction atomic permite realizar los cambios en la db siempre y cuando el codigo se ejecute correctamente, si llega a existir una excepcion, los cambios se revertiran
     @transaction.atomic
     def create(self, data):
-        print(data, flush=True)
         data['activation_code'] = self.create_activation_code()
         data['is_active'] = False
         data['profile'] = PROFILES['Cliente']
@@ -58,9 +72,11 @@ class UserCreateSerializer(serializers.Serializer):
         return user
         
     def create_activation_code(self):
+        #Crea un codigo de activacion de 4 digitos
         return random.randint(1000, 9999)
     
     def clean_phone_number(self, number):
+        #Elimina +57, 57 y los especios del numero de telefono
         number = re.sub('\+57|\s|\A57','',number)
         return number
         

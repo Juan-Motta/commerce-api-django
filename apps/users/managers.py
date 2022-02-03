@@ -4,7 +4,7 @@ from .profiles import PROFILES
 
 class UserManager(BaseUserManager):
     """Manager encargados de la creacion de usuarios"""
-    def _create_user(self, email, first_name, last_name, nid, profile, password, is_active):
+    def _create_user(self, email, first_name, last_name, nid, phone, profile, password, is_active):
         #Crea una instancia del modelo en base a los parametros ingresados
         user = self.model(
             email=email,
@@ -13,6 +13,7 @@ class UserManager(BaseUserManager):
             nid=nid,
             is_active=is_active,
             profile=profile,
+            phone=phone
         )
         #Crea un password hasheado
         user.set_password(password)
@@ -21,8 +22,8 @@ class UserManager(BaseUserManager):
         return user
     
     # Metodos para definir usuarios y superusuarios, los parametros definidos en los metodos deben corresponder con los campos definidos en el modelo  
-    def create_user(self, email, first_name, last_name, nid, password=None):
-        return self._create_user(email, first_name, last_name, nid, password, False)
+    def create_user(self, email, first_name, last_name, nid, phone, password=None):
+        return self._create_user(email, first_name, last_name, nid, phone, PROFILES['Cliente'], password, False)
     
-    def create_superuser(self, email, first_name, last_name, nid, password=None):
-        return self._create_user(email, first_name, last_name, nid, PROFILES['Administrador'], password, True)
+    def create_superuser(self, email, first_name, last_name, nid, phone, password=None):
+        return self._create_user(email, first_name, last_name, nid, phone, PROFILES['Administrador'], password, True)

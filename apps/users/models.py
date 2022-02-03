@@ -23,6 +23,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = [
         'first_name',
         'last_name',
-        'nid'
+        'nid',
+        'phone'
     ]
     
