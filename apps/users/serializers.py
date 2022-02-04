@@ -29,8 +29,9 @@ class UserCreateSerializer(serializers.Serializer):
         try:
             password_validation.validate_password(password, self.instance)
             return password
-        except Exception as e:
-            raise serializers.ValidationError(e.messages)
+        except Exception as error:
+            #el objeto error puede contener multiples errores, por ellos se debe convertir a una lista
+            raise serializers.ValidationError(list(error))
 
     def validate_email(self, email):
         # Validaciones del correo
@@ -40,8 +41,9 @@ class UserCreateSerializer(serializers.Serializer):
             if email_validation.__len__():
                 raise self.ValidationError("El email ya existe.")
             return email
-        except Exception as e:
-            raise serializers.ValidationError(e.messages)
+        except Exception as error:
+            #el objeto error puede contener multiples errores, por ellos se debe convertir a una lista
+            raise serializers.ValidationError(list(error))
 
     def validate_nid(self, nid):
         # Validaciones de nid
@@ -54,12 +56,10 @@ class UserCreateSerializer(serializers.Serializer):
         # Validaciones de telefono
         phone_validation = User.objects.filter(phone=phone)
         if phone_validation.__len__():
-            raise serializers.ValidationError(
-                "El numero de telefono ya existe.")
+            raise serializers.ValidationError("El numero de telefono ya existe.")
         phone_validation = self.clean_phone_number(phone)
         if re.match('^[0-9]*$', phone_validation) is None:
-            raise serializers.ValidationError(
-                "El numero de telefono solo debe contener numeros.")
+            raise serializers.ValidationError("El numero de telefono solo debe contener numeros.")
         return phone
 
     # Transaction atomic permite realizar los cambios en la db siempre y cuando el codigo se ejecute correctamente, si llega a existir una excepcion, los cambios se revertiran
@@ -78,6 +78,35 @@ class UserCreateSerializer(serializers.Serializer):
         return random.randint(1000, 9999)
 
     def clean_phone_number(self, number):
-        # Elimina +57, 57 y los especios del numero de telefono
+        # Elimina +57, 57 y los espacios del numero de telefono
         number = re.sub('\+57|\s|\A57', '', number)
         return number
+
+class UserActivateSerializer(serializers.Serializer):
+    """
+    Serializador para la activacion de usuarios
+    Recibe el id de usuario y un codigo, compara el codigo del usuario con el codigo proporcionado y activa la cuenta
+    """
+    user_id = serializers.IntegerField()
+    activation_code = serializers.IntegerField()
+    
+    def validate_user_id(self, user_id):
+        #Valida que el usuario existe
+        user = User.objects.filter(id=user_id)
+        if not user:
+            raise serializers.ValidationError(f'No existe un usuario con el id {user_id}.')
+        return user_id
+
+    def validate_activation_code(self, activation_code):
+        #Valida que el codigo proporcionado sea correcto
+        if activation_code < 1000 or activation_code > 9999:
+            raise serializers.ValidationError("El codigo de activacion solo debe contener numeros.")
+        return activation_code
+        
+    def create(self, data):
+        user = User.objects.filter(id = data['user_id']).first()
+        if user.activation_code == data['activation_code']:
+            user.is_active = True
+            user.save()
+            return user
+        raise serializers.ValidationError({'activation_code': 'El codigo de activacion es incorrecto.'})    
