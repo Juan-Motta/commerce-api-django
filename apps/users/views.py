@@ -2,12 +2,17 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import UserActivateSerializer, UserCreateSerializer
+from .models import User
+
+from .serializers import UserActivateSerializer, UserCreateSerializer, UserListSerializer
 
 
 class UserAPIView(APIView):
+    
     def get(self, request):
-        return Response({'message': 'Hola mundo'})
+        user = User.objects.all()
+        user_serializer = UserListSerializer(user, many=True)
+        return Response(user_serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
         user_serializer = UserCreateSerializer(data = request.data)

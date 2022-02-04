@@ -111,3 +111,23 @@ class UserActivateSerializer(serializers.Serializer):
             user.save()
             return data
         raise serializers.ValidationError({'activation_code': 'El codigo de activacion es incorrecto.'})    
+
+        
+class UserListSerializer(serializers.Serializer):
+    """
+    Serializador para el listado de usuarios
+    """
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    nid = serializers.CharField()
+    phone = serializers.CharField()
+    is_active = serializers.BooleanField()
+    profile = serializers.IntegerField()
+    
+    def to_representation(self, instance):
+        #Modifica el id del perfil por el nombre del perfil
+        data = super().to_representation(instance)
+        data['profile'] = list(PROFILES.keys())[data['profile']-1]
+        return data
