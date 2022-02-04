@@ -104,9 +104,10 @@ class UserActivateSerializer(serializers.Serializer):
         return activation_code
         
     def create(self, data):
-        user = User.objects.filter(id = data['user_id']).first()
+        #Se garantiza que el usuario existe debido a la validacion del user_id
+        user = User.objects.filter(id = data['user_id'])[0]
         if user.activation_code == data['activation_code']:
             user.is_active = True
             user.save()
-            return user
+            return data
         raise serializers.ValidationError({'activation_code': 'El codigo de activacion es incorrecto.'})    
