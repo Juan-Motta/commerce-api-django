@@ -84,8 +84,7 @@ class UserCreateSerializer(serializers.Serializer):
 
 class UserActivateSerializer(serializers.Serializer):
     """
-    Serializador para la activacion de usuarios
-    Recibe el id de usuario y un codigo, compara el codigo del usuario con el codigo proporcionado y activa la cuenta
+    Serializador para la activacion de usuarios. Recibe el id de usuario y un codigo, compara el codigo del usuario con el codigo proporcionado y activa la cuenta
     """
     user_id = serializers.IntegerField()
     activation_code = serializers.IntegerField()

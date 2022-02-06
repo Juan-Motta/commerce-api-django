@@ -26,4 +26,7 @@ class User(AbstractBaseUser):
         'nid',
         'phone'
     ]
-    
+
+class Profiles(models.Model):
+    """Modelo de perdiles de usuario"""
+    name = models.CharField(max_length=30)

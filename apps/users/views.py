@@ -22,6 +22,9 @@ class UserAPIView(APIView):
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserActivationAPIView(APIView):
+    
+    serializer_class = UserActivateSerializer()
+    
     def post(self, request):
         user_serializer = UserActivateSerializer(data = request.data)
         if user_serializer.is_valid():
