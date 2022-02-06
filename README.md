@@ -10,6 +10,16 @@ Esta aplicacion se encuentra construida bajo el framework Django, utiliza una ba
 * PostgreSQL
 * Redis
 
+## INSTALACIÓN
+Para correr el proyecto en local es necesario ubicarse en la carpeta raiz del proyecto y ejecutar el comando
+```console
+docker-compose up
+```
+Para poder crear un superusuario se debe ejecutar el siguiente comando en una nueva terminal sobre la carpeta raiz
+```console
+docker-compose exec commerce-api python3 manage.py createsuperuser
+```
+
 ## FUNCIONAMIENTO
 
 La aplicacion tiene la siguiente arquitectura a manera general

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 
+from apps.profiles.models import Profile
 from .managers import UserManager
 
 
@@ -13,7 +14,7 @@ class User(AbstractBaseUser):
     phone = models.CharField(max_length=15, unique=True)
     activation_code = models.IntegerField(null=True)
     is_active = models.BooleanField(default=False)
-    profile = models.IntegerField()
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -26,7 +27,3 @@ class User(AbstractBaseUser):
         'nid',
         'phone'
     ]
-
-class Profiles(models.Model):
-    """Modelo de perdiles de usuario"""
-    name = models.CharField(max_length=30)
