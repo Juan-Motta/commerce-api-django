@@ -15,7 +15,8 @@ Esta aplicacion se encuentra construida bajo el framework Django, utiliza una ba
 La aplicacion tiene la siguiente arquitectura a manera general
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/78517969/152666785-7e58d559-0a55-4f2e-bacd-207046f0fb37.png" width=600 alt="Model" />
+  <img src="https://user-images.githubusercontent.com/78517969/152666876-7ffa46b0-2858-4fad-890f-e817536d0100.png" width=600 alt="Model" />
 </p>
 
 ## API
+
