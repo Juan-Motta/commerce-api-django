@@ -23,10 +23,6 @@ cp .env.example .env
 ```console
 docker-compose up
 ```
-modo detached
-```console
-docker-compose up -d
-```
 4. Crear un superusuario (opcional)
 Este comando se debe ejecutar en una terminal diferente o si se desea ejecutar en la misma terminal se debe correr el proyecto en modo detached
 ```console
