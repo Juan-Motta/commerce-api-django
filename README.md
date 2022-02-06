@@ -11,11 +11,19 @@ Esta aplicacion se encuentra construida bajo el framework Django, utiliza una ba
 * Redis
 
 ## INSTALACIÓN
-Para correr el proyecto en local es necesario ubicarse en la carpeta raiz del proyecto y ejecutar el comando
+1. Clonar el repositorio
+```console
+git clone https://github.com/Juan-Motta/commerce-api-django.git
+```
+2. Generar archivo .env
+```console
+cp .env.example .env
+```
+3. Correr el proyecto de manera local
 ```console
 docker-compose up
 ```
-Para poder crear un superusuario se debe ejecutar el siguiente comando en una nueva terminal sobre la carpeta raiz
+4. Crear un superusuario (opcional)
 ```console
 docker-compose exec commerce-api python3 manage.py createsuperuser
 ```
