@@ -5,8 +5,10 @@ from django.contrib.auth import password_validation
 from django.core.validators import validate_email
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
+from apps.profiles.serializers import ProfiletListSerializer
 from .profiles import PROFILES
 
 
@@ -130,3 +132,66 @@ class UserListSerializer(serializers.Serializer):
         data = super().to_representation(instance)
         data['profile'] = list(PROFILES.keys())[data['profile']-1]
         return data
+    
+
+class UserLoginSerializer(serializers.Serializer):
+    """
+    Serializador que valida las credenciales de usuario y devuelve el 1 del usuario
+    """
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+    
+    def validate_username(self, username):
+        #Si el usuarname es email
+        if '@' in username:
+            user = User.objects.filter(email=username).first()
+            if user:
+                self.context['user'] = user
+                return username
+        #Si el username es telefono
+        user = User.objects.filter(phone=username).first()
+        if user:
+            self.context['user'] = user
+            return username
+        raise serializers.ValidationError("Usuario o contraseña incorrectos")
+    
+    def validate_password(self, password):
+        #Valida si la contraseña proporsionada coincide con la contraseña del usuario
+        user = self.context['user']
+        if user.check_password(password):
+            return password
+        raise serializers.ValidationError("Usuario o contraseña incorrectos")
+    
+    def to_representation(self, instance):
+        #Si las validaciones son correctas devuelve el id del usuario en forma de diccionario
+        return {'id': self.context['user'].id}
+
+class UserSignUpSerializer(serializers.Serializer):
+    """
+    Serializador que devuelve la informacion del usuario mas un token de acceso
+    """
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    nid = serializers.CharField()
+    phone = serializers.CharField()
+    is_active = serializers.BooleanField()
+    profile = ProfiletListSerializer()
+    token = serializers.CharField(required=False)
+    
+    def to_representation(self, instance):
+        token = None
+        #Comprueba que la contraseña corresponde a la del usuario
+        if instance.check_password(self.context['password']):
+                token = self._get_token(instance)
+        data = super().to_representation(instance)
+        data['token'] = token
+        return data
+    
+    def _get_token(self, user):
+        #Devuelve un token asociado al usuario
+        tokens = RefreshToken.for_user(user)
+        return {
+            'access': str(tokens.access_token)
+        }
