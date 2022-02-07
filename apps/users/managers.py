@@ -1,5 +1,7 @@
 from django.contrib.auth.models import BaseUserManager
 
+from apps.profiles.models import Profile
+
 from .profiles import PROFILES
 
 class UserManager(BaseUserManager):
@@ -23,7 +25,11 @@ class UserManager(BaseUserManager):
     
     # Metodos para definir usuarios y superusuarios, los parametros definidos en los metodos deben corresponder con los campos definidos en el modelo  
     def create_user(self, email, first_name, last_name, nid, phone, password=None):
-        return self._create_user(email, first_name, last_name, nid, phone, PROFILES['Cliente'], password, False)
+        return self._create_user(email, first_name, last_name, nid, phone, self._get_profile(PROFILES['Usuario']), password, False)
     
     def create_superuser(self, email, first_name, last_name, nid, phone, password=None):
-        return self._create_user(email, first_name, last_name, nid, phone, PROFILES['Administrador'], password, True)
+        return self._create_user(email, first_name, last_name, nid, phone, self._get_profile(PROFILES['Administrador']), password, True)
+    
+    #Devuelve una instancia de la clase Profile que concuerde con el id
+    def _get_profile(self, profile_id):
+        return Profile.objects.get(id=profile_id)
