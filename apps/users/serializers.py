@@ -12,6 +12,7 @@ from apps.profiles.serializers import ProfiletListSerializer
 
 from .models import User
 from .profiles import PROFILES
+from .utils import _get_user
 
 
 class UserCreateSerializer(serializers.Serializer):
@@ -146,12 +147,12 @@ class UserLoginSerializer(serializers.Serializer):
     def validate_username(self, username):
         #Si el usuarname es email
         if '@' in username:
-            user = User.objects.filter(email=username).first()
+            user = _get_user(email=username)
             if user:
                 self.context['user'] = user
                 return username
         #Si el username es telefono
-        user = User.objects.filter(phone=username).first()
+        user = _get_user(phone=username)
         if user:
             self.context['user'] = user
             return username
@@ -164,9 +165,8 @@ class UserLoginSerializer(serializers.Serializer):
             return password
         raise serializers.ValidationError("Usuario o contraseña incorrectos")
     
-    def to_representation(self, instance):
-        #Si las validaciones son correctas devuelve el id del usuario en forma de diccionario
-        return {'id': self.context['user'].id}
+    def get_instance(self):
+        return self.context['user']
 
 class UserSignUpSerializer(serializers.Serializer):
     """
@@ -189,8 +189,6 @@ class UserSignUpSerializer(serializers.Serializer):
                 token = self._get_token(instance)
         data = super().to_representation(instance)
         data['token'] = token
-        #agrega la informacion de legeo a la cache
-        cache.set(f"user:login:{data['id']}", data, timeout=1800)
         return data
     
     def _get_token(self, user):

@@ -47,12 +47,7 @@ class UserLoginAPIView(APIView):
         #Comprueba las credenciales
         login = UserLoginSerializer(data = request.data)
         if login.is_valid():
-            #comprueba si existen credenciales en cache
-            user_cache = cache.get(f"user:login:{login.data['id']}")
-            if user_cache:
-                return Response(user_cache, status=status.HTTP_200_OK)    
-            #Busca un usuario con el id entregado por el serializador
-            user = User.objects.filter(id=login.data['id']).first()
+            user = login.get_instance()
             if user:
                 #Recupera la informacion de usuario y genera el token de acceso
                 user_serializer = UserSignUpSerializer(user, context=request.data)
