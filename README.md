@@ -37,5 +37,19 @@ La aplicacion tiene la siguiente arquitectura a manera general
   <img src="https://user-images.githubusercontent.com/78517969/152666876-7ffa46b0-2858-4fad-890f-e817536d0100.png" width=600 alt="Model" />
 </p>
 
+### Cache de Login
+
+1. El usuario hace la peticion al endpoint login con las credenciales de autenticación
+2. Django valida las credenciales y realiza una consulta a Redis para saber si hay informacion asociada al usuario
+3. Redis devuelve la informacion asociada al usuario si existe
+4. Si la informacion del usuario existe se devuelve una respuesta al usuario con dicha informacion
+5. Si la informacion del usuario no existe se realiza una peticion a la base de datos para recuperar la informacion del usuario
+6. La base de datos devuelve la informacion del usuario si existe
+7. La api genera el token y se devuelve al usuario
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/78517969/153041742-a7b6b660-379a-42eb-b694-d3ae11b7f580.png" width=600 alt="Cache" />
+</p>
+
 ## API
 
