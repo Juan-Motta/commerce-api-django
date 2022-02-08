@@ -48,8 +48,9 @@ La aplicacion tiene la siguiente arquitectura a manera general
 7. La api genera el token y se devuelve al usuario
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/78517969/153041742-a7b6b660-379a-42eb-b694-d3ae11b7f580.png" width=600 alt="Cache" />
+  <img src="https://user-images.githubusercontent.com/78517969/153066232-55d25ff7-830e-4090-9abb-9077be13e2ad.png" width=600 alt="Cache" />
 </p>
+
 
 ## API
 
