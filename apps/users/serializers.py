@@ -3,12 +3,14 @@ import re
 
 from django.contrib.auth import password_validation
 from django.core.validators import validate_email
+from django.core.cache import cache
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import User
 from apps.profiles.serializers import ProfiletListSerializer
+
+from .models import User
 from .profiles import PROFILES
 
 
@@ -187,6 +189,8 @@ class UserSignUpSerializer(serializers.Serializer):
                 token = self._get_token(instance)
         data = super().to_representation(instance)
         data['token'] = token
+        #agrega la informacion de legeo a la cache
+        cache.set(f"user:login:{data['id']}", data, timeout=1800)
         return data
     
     def _get_token(self, user):

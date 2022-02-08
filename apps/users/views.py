@@ -1,11 +1,12 @@
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-
-from .serializers import UserActivateSerializer, UserCreateSerializer, UserListSerializer, UserLoginSerializer, UserSignUpSerializer
+from .serializers import (UserActivateSerializer, UserCreateSerializer,
+                          UserListSerializer, UserLoginSerializer,
+                          UserSignUpSerializer)
 
 
 class UserAPIView(APIView):
@@ -46,10 +47,15 @@ class UserLoginAPIView(APIView):
         #Comprueba las credenciales
         login = UserLoginSerializer(data = request.data)
         if login.is_valid():
-            #Busca un usuario con el id entregado por el serializador  
+            #comprueba si existen credenciales en cache
+            user_cache = cache.get(f"user:login:{login.data['id']}")
+            if user_cache:
+                return Response(user_cache, status=status.HTTP_200_OK)    
+            #Busca un usuario con el id entregado por el serializador
             user = User.objects.filter(id=login.data['id']).first()
             if user:
                 #Recupera la informacion de usuario y genera el token de acceso
                 user_serializer = UserSignUpSerializer(user, context=request.data)
                 return Response(user_serializer.data, status=status.HTTP_200_OK)
+        return Response(login.errors, status=status.HTTP_400_BAD_REQUEST)
     

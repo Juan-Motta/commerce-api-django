@@ -2,13 +2,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from django.urls.conf import include
-from drf_spectacular.views import (
-    SpectacularAPIView, 
-    SpectacularRedocView,
-    SpectacularSwaggerView)
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView)
+from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
+                                   SpectacularSwaggerView)
 
 urlpatterns = [
     path('api/users/', include('apps.users.urls')),
