@@ -53,4 +53,14 @@ class UserLoginAPIView(APIView):
                 user_serializer = UserSignUpSerializer(user, context=request.data)
                 return Response(user_serializer.data, status=status.HTTP_200_OK)
         return Response(login.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserLogoutAPIView(APIView):
+    """
+    Elimina la informacion del usuario de la cache
+    """
     
+    def post(self, request, id):
+        #Comprueba si el usuario tiene info almacenada en la cache
+        if cache.keys(f"user:{id}:*:*").__len__():
+            cache.delete(cache.keys(f"user:{id}:*:*")[0])
+        return Response({'message': 'Credenciales eliminadas'}, status=status.HTTP_204_NO_CONTENT)
